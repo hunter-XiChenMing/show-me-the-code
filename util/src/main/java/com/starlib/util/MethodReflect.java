@@ -18,24 +18,22 @@ public class MethodReflect<T> {
 
     public MethodReflect(Class<T> objClass) {
         this.objClass = objClass;
-        this.setMethods = new HashMap<String, Method>();
-        this.getMethods = new HashMap<String, Method>();
+        this.setMethods = new HashMap<>();
+        this.getMethods = new HashMap<>();
         initMethods(setMethods, SET_PATTERN);
         initMethods(getMethods, GET_PATTERN);
     }
 
-    public T copyBeanAttributes(T obj, Map<String, Object> param) {
-        param.forEach((key, value) -> {
-            setMethodValue(obj, key, value);
-        });
-        return obj;
+    public void copyBeanAttributes(T obj, Map<String, Object> param) {
+        param.forEach((key, value) -> setMethodValue(obj, key, value));
     }
 
     private void setMethodValue(T obj, String key, Object value) {
-        Method method = this.setMethods.get(key);
+        String methodName = ("set".concat(key)).toLowerCase(Locale.US);
+        Method method = this.setMethods.get(methodName);
         try {
             method.invoke(obj, value);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NullPointerException e) {
             e.printStackTrace();
         }
     }
