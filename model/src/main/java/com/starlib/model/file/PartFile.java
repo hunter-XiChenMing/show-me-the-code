@@ -1,6 +1,5 @@
 package com.starlib.model.file;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +9,8 @@ public class PartFile {
     private int fileIndex;
     private String filePath;
 
-    public PartFile(String filePath) {
+    public PartFile(String filePath, int index) {
         this.filePath = filePath;
+        this.fileIndex = index;
     }
 }

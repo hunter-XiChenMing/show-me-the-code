@@ -3,21 +3,26 @@ package com.starlib.util.file;
 import com.starlib.model.file.OprationFile;
 import com.starlib.model.file.PartFile;
 import com.starlib.util.constant.Constant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
+
 public class FragmentUpload {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(FragmentUpload.class);
+
     /**
      * @param files 合并分片文件
      */
-    public static void mergeFile(PartFile[] files, String path) throws IOException {
+    public static void mergeFile(PartFile[] files, String path) {
         OprationFile writeFile = null;
-        long position = 0;
         try {
+            writeFile = new OprationFile(path, "rw");
+            long position = 0;
             for (PartFile file : files) {
                 try (OprationFile readFile = new OprationFile(file.getFilePath(), "rw")) {
-                    writeFile = new OprationFile(path, "rw");
                     int chunkSize = Constant.INT_10240;
                     byte[] buf = new byte[chunkSize];
                     int byteCount = readFile.read(buf);
@@ -32,11 +37,18 @@ public class FragmentUpload {
                         position += byteCount;
                         byteCount = readFile.read(buf);
                     }
+                    LOGGER.info("file part"+file.getFileIndex()+" successful merged.");
                 }
             }
-        } finally {
+        } catch (IOException e){
+            LOGGER.error(e.getMessage());
+        } finally{
             if (writeFile != null) {
-                writeFile.close();
+                try{
+                    writeFile.close();
+                } catch (IOException e){
+                    LOGGER.error(e.getMessage());
+                }
             }
         }
     }
